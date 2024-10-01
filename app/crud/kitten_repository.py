@@ -8,6 +8,7 @@ from sqlalchemy.orm import selectinload
 
 from app.filters.kitten_filter import KittenFilter
 from app.models.kitten import Kitten
+from app.schemas.kitten_schema import KittenEdit
 
 
 async def get_kitten_by_id(session: AsyncSession, id: int) -> Optional[Kitten]:
@@ -37,8 +38,8 @@ async def get_paginated_kittens(
     return await paginate(session, query, params)
 
 
-async def update_lesson_data(
-    session: AsyncSession, kitten: Kitten, new_kitten_data
+async def update_kitten_data(
+    session: AsyncSession, kitten: Kitten, new_kitten_data: KittenEdit
 ) -> Kitten:
     update_data = new_kitten_data.model_dump()
     for key, value in update_data.items():

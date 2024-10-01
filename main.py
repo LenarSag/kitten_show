@@ -1,7 +1,7 @@
 import asyncio
 
 from fastapi import FastAPI, Request, status
-from fastapi.exceptions import RequestValidationError, ValidationException
+from fastapi.exceptions import ValidationException
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 import uvicorn
@@ -34,16 +34,6 @@ async def custom_pydantic_validation_error_handler(
 @app.exception_handler(ValidationException)
 async def custom_fastapi_validation_error_handler(
     request: Request, exc: ValidationError
-):
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content={'detail': exc.errors()},
-    )
-
-
-@app.exception_handler(RequestValidationError)
-async def custom_fastapi_request_validation_error_handler(
-    request: Request, exc: RequestValidationError
 ):
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,

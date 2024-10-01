@@ -10,12 +10,14 @@ from app.crud.kitten_repository import (
     create_new_kitten,
     get_kitten_by_id,
     get_paginated_kittens,
+    update_kitten_data,
 )
 from app.db.database import get_session
+from app.endpoints.breeds import get_breed_or_404
 from app.filters.kitten_filter import KittenFilter
 from app.models.kitten import Kitten
 from app.models.user import User
-from app.schemas.kitten_schema import KittenCreate, KittenOut
+from app.schemas.kitten_schema import KittenCreate, KittenEdit, KittenOut
 from app.security.authentication import get_current_user
 
 
@@ -52,22 +54,27 @@ async def get_kittens(
 
 @kittenrouter.post('/', response_model=KittenOut, status_code=status.HTTP_201_CREATED)
 async def create_kitten(
-    kitten_data: KittenCreate,
+    kitten_data: Annotated[KittenCreate, Depends()],
     session: Annotated[AsyncSession, Depends(get_session)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    breed = await get_breed_by_id(session, kitten_data.breed_id)
-    if breed is None:
-        raise HTTPException(
-            detail='Breed not found', status_code=status.HTTP_400_BAD_REQUEST
-        )
+    await get_breed_or_404(session, kitten_data.breed_id)
     new_kitten = await create_new_kitten(session, kitten_data)
     return new_kitten
 
 
-@kittenrouter.patch('/{kitten_id}')
-async def update_kitten():
-    pass
+@kittenrouter.patch('/{kitten_id}', response_model=KittenOut)
+async def update_kitten(
+    kitten_id: int,
+    new_kitten_data: Annotated[KittenEdit, Depends()],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    kitten = await get_kitten_or_404(session, kitten_id)
+    if new_kitten_data.breed_id:
+        await get_breed_or_404(session, new_kitten_data.breed_id)
+    new_kitten = await update_kitten_data(session, kitten, new_kitten_data)
+    return new_kitten
 
 
 @kittenrouter.delete('/{kitten_id}')

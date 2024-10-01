@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import Depends, APIRouter, HTTPException, status
 from fastapi_filter import FilterDepends
@@ -13,12 +13,22 @@ from app.crud.breed_repository import (
 )
 from app.db.database import get_session
 from app.filters.kitten_filter import BreedFilter
+from app.models.kitten import Breed
 from app.models.user import User
 from app.schemas.kitten_schema import BreedCreate, BreedOut
 from app.security.authentication import get_current_user
 
 
 breedrouter = APIRouter()
+
+
+async def get_breed_or_404(session: AsyncSession, breed_id: int) -> Optional[Breed]:
+    breed = await get_breed_by_id(session, breed_id)
+    if breed is None:
+        raise HTTPException(
+            detail='Breed not found', status_code=status.HTTP_404_NOT_FOUND
+        )
+    return breed
 
 
 @breedrouter.get('/{breed_id}', response_model=BreedOut)
@@ -46,7 +56,7 @@ async def get_breeds(
 
 @breedrouter.post('/', response_model=BreedOut, status_code=status.HTTP_201_CREATED)
 async def create_breed(
-    breed_data: BreedCreate,
+    breed_data: Annotated[BreedCreate, Depends()],
     session: Annotated[AsyncSession, Depends(get_session)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):

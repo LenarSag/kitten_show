@@ -29,6 +29,7 @@ async def create_new_breed(
     new_breed = Breed(**breed_data.model_dump())
     session.add(new_breed)
     await session.commit()
+    await session.refresh(new_breed)
     return new_breed
 
 
