@@ -8,9 +8,7 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
-    relationship,
     validates,
-    backref,
 )
 
 from app.models.base import Base
@@ -22,7 +20,9 @@ class User(Base):
     id: Mapped[PG_UUID] = mapped_column(
         PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    username: Mapped[str] = mapped_column(
+        String(50), unique=True, index=True, nullable=False
+    )
     email: Mapped[str] = mapped_column(
         String(150), unique=True, nullable=False, index=True
     )
@@ -36,7 +36,7 @@ class User(Base):
         return email
 
     @validates('username')
-    def validate_first_name(self, key, first_name):
+    def validate_username(self, key, first_name):
         username_regex = r'^[\w.@+-]+$'
         if not re.match(username_regex, first_name):
             raise ValueError('Username is invalid')

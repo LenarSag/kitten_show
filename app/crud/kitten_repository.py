@@ -48,3 +48,8 @@ async def update_kitten_data(
     await session.commit()
     await session.refresh(kitten)
     return kitten
+
+
+async def delete_kitten_from_db(session: AsyncSession, kitten: Kitten) -> None:
+    await session.delete(kitten)
+    await session.commit()

@@ -30,6 +30,11 @@ class KittenColors(PyEnum):
     GINGER = 'ginger'
 
 
+class KittenSex(PyEnum):
+    MALE = 'male'
+    FEMALE = 'female'
+
+
 class Breed(Base):
     __tablename__ = 'breed'
 
@@ -51,6 +56,9 @@ class Kitten(Base):
     name: Mapped[str] = mapped_column(String(KITTEN_NAME_LENGTH))
     color: Mapped[KittenColors] = mapped_column(
         Enum(KittenColors, values_callable=lambda obj: [e.value for e in obj]),
+    )
+    sex: Mapped[KittenSex] = mapped_column(
+        Enum(KittenSex, values_callable=lambda obj: [e.value for e in obj]),
     )
     birth_date: Mapped[date] = mapped_column(Date(), nullable=False)
     description: Mapped[str] = mapped_column(Text(), nullable=False)

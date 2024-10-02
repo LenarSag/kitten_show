@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud.user_repository import create_new_user, get_user_by_username
 from app.db.database import get_session
 from app.schemas.fastapi_schemas import Token
-from app.schemas.user_schema import UserCreate
+from app.schemas.user_schema import UserAuthentication, UserCreate, UserOut
 from app.security.authentication import authenticate_user, create_access_token
 from app.security.pwd_crypt import get_hashed_password
 
@@ -15,9 +15,9 @@ from app.security.pwd_crypt import get_hashed_password
 loginrouter = APIRouter()
 
 
-@loginrouter.post('/user', status_code=status.HTTP_201_CREATED)
+@loginrouter.post('/user', response_model=UserOut, status_code=status.HTTP_201_CREATED)
 async def post_endpoint(
-    user_data: Annotated[UserCreate, Depends()],
+    user_data: UserCreate,
     session: Annotated[AsyncSession, Depends(get_session)],
 ):
     user = await get_user_by_username(session, user_data.username)
@@ -33,8 +33,8 @@ async def post_endpoint(
 
 @loginrouter.post('/token')
 async def login_for_access_token(
+    form_data: UserAuthentication,
     session: Annotated[AsyncSession, Depends(get_session)],
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
     user = await authenticate_user(session, form_data.username, form_data.password)
     if not user:

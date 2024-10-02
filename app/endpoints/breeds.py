@@ -56,7 +56,7 @@ async def get_breeds(
 
 @breedrouter.post('/', response_model=BreedOut, status_code=status.HTTP_201_CREATED)
 async def create_breed(
-    breed_data: Annotated[BreedCreate, Depends()],
+    breed_data: BreedCreate,
     session: Annotated[AsyncSession, Depends(get_session)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):

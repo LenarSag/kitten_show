@@ -5,9 +5,9 @@ from fastapi_filter import FilterDepends
 from fastapi_pagination import Page, Params
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.breed_repository import get_breed_by_id
 from app.crud.kitten_repository import (
     create_new_kitten,
+    delete_kitten_from_db,
     get_kitten_by_id,
     get_paginated_kittens,
     update_kitten_data,
@@ -54,7 +54,7 @@ async def get_kittens(
 
 @kittenrouter.post('/', response_model=KittenOut, status_code=status.HTTP_201_CREATED)
 async def create_kitten(
-    kitten_data: Annotated[KittenCreate, Depends()],
+    kitten_data: KittenCreate,
     session: Annotated[AsyncSession, Depends(get_session)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
@@ -66,7 +66,7 @@ async def create_kitten(
 @kittenrouter.patch('/{kitten_id}', response_model=KittenOut)
 async def update_kitten(
     kitten_id: int,
-    new_kitten_data: Annotated[KittenEdit, Depends()],
+    new_kitten_data: KittenEdit,
     session: Annotated[AsyncSession, Depends(get_session)],
     current_user: Annotated[User, Depends(get_current_user)],
 ):
@@ -77,6 +77,11 @@ async def update_kitten(
     return new_kitten
 
 
-@kittenrouter.delete('/{kitten_id}')
-async def delete_kitten():
-    pass
+@kittenrouter.delete('/{kitten_id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_kitten(
+    kitten_id: int,
+    session: Annotated[AsyncSession, Depends(get_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    kitten = await get_kitten_or_404(session, kitten_id)
+    await delete_kitten_from_db(session, kitten)

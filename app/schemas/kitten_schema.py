@@ -4,8 +4,8 @@ from typing import Optional
 from fastapi.exceptions import ValidationException
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from app.models.kitten import KittenColors
-from config import BREED_LENGTH, KITTEN_NAME_LENGTH
+from app.models.kitten import KittenColors, KittenSex
+from config import BREED_LENGTH, KITTEN_NAME_LENGTH, MAX_KITTEN_AGE
 
 
 class BreedCreate(BaseModel):
@@ -31,7 +31,15 @@ class KittenBase(BaseModel):
             today = date.today()
             if birth_date > today:
                 raise ValidationException("Birth date can't be bigger than today")
-        return birth_date
+            age = (
+                today.year
+                - birth_date.year
+                - ((today.month, today.day) < (birth_date.month, birth_date.day))
+            )
+
+            if age > MAX_KITTEN_AGE:
+                raise ValidationException('Age must be at most 20 years old.')
+            return birth_date
 
     @field_validator('name')
     @classmethod
@@ -43,6 +51,7 @@ class KittenBase(BaseModel):
 
 class KittenCreate(KittenBase):
     color: KittenColors
+    sex: KittenSex
     birth_date: date
     description: str
     breed_id: int
@@ -50,6 +59,7 @@ class KittenCreate(KittenBase):
 
 class KittenEdit(KittenBase):
     color: Optional[KittenColors] = None
+    sex: Optional[KittenSex] = None
     description: Optional[str] = None
     breed_id: Optional[int] = None
 
