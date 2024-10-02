@@ -24,7 +24,9 @@ from app.security.authentication import get_current_user
 kittenrouter = APIRouter()
 
 
-async def get_kitten_or_404(session: AsyncSession, kitten_id: int) -> Optional[Kitten]:
+async def get_kitten_or_404(
+    session: AsyncSession, kitten_id: int
+) -> Optional[Kitten]:
     kitten = await get_kitten_by_id(session, kitten_id)
     if kitten is None:
         raise HTTPException(
@@ -52,7 +54,10 @@ async def get_kittens(
     return result
 
 
-@kittenrouter.post('/', response_model=KittenOut, status_code=status.HTTP_201_CREATED)
+@kittenrouter.post(
+    '/', response_model=KittenOut,
+    status_code=status.HTTP_201_CREATED
+)
 async def create_kitten(
     kitten_data: KittenCreate,
     session: Annotated[AsyncSession, Depends(get_session)],

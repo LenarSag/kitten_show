@@ -30,11 +30,16 @@ class KittenBase(BaseModel):
         if birth_date:
             today = date.today()
             if birth_date > today:
-                raise ValidationException("Birth date can't be bigger than today")
+                raise ValidationException(
+                    "Birth date can't be bigger than today"
+                )
             age = (
                 today.year
                 - birth_date.year
-                - ((today.month, today.day) < (birth_date.month, birth_date.day))
+                - (
+                    (today.month, today.day)
+                    < (birth_date.month, birth_date.day)
+                )
             )
 
             if age > MAX_KITTEN_AGE:
@@ -68,6 +73,7 @@ class KittenOut(BaseModel):
     id: int
     name: Optional[str]
     color: KittenColors
+    sex: KittenSex
     age_in_months: int
     description: str
     breed: BreedOut

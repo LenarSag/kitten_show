@@ -1,10 +1,8 @@
-import asyncio
-
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import ValidationException
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-import uvicorn
+
 
 from app.db.database import init_models
 from app.endpoints.breeds import breedrouter
@@ -41,6 +39,8 @@ async def custom_fastapi_validation_error_handler(
     )
 
 
-if __name__ == '__main__':
-    asyncio.run(init_models())
-    uvicorn.run(app='main:app', host='127.0.0.1', port=8000, reload=True)
+async def startup_event():
+    await init_models()
+
+
+app.add_event_handler('startup', startup_event)

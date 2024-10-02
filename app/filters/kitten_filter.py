@@ -20,7 +20,9 @@ class KittenFilter(Filter):
     color: Optional[KittenColors] = None
     age_in_months__lt: Optional[int] = None
     age_in_months__gt: Optional[int] = None
-    breed: Optional[BreedFilter] = FilterDepends(with_prefix('breed', BreedFilter))
+    breed: Optional[BreedFilter] = FilterDepends(
+        with_prefix('breed', BreedFilter)
+    )
 
     order_by: list[str] = ['name']
 

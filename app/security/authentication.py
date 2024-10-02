@@ -28,7 +28,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f'{API_URL}/auth/token/')
 
 
 async def authenticate_user(
-    session: Annotated[AsyncSession, Depends(get_session)], username: str, password: str
+    session: Annotated[AsyncSession, Depends(get_session)],
+    username: str, password: str
 ) -> Optional[User]:
     user = await get_user_by_username(session, username)
     if not user or not verify_password(password, user.password):

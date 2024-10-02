@@ -16,7 +16,9 @@ async def get_breed_by_id(session: AsyncSession, id: int) -> Optional[Breed]:
     return result.scalar()
 
 
-async def get_breed_by_name(session: AsyncSession, name: str) -> Optional[Breed]:
+async def get_breed_by_name(
+    session: AsyncSession, name: str
+) -> Optional[Breed]:
     query = select(Breed).filter_by(name=name)
     result = await session.execute(query)
     return result.scalar()

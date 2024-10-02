@@ -31,7 +31,9 @@ async def create_new_kitten(
 async def get_paginated_kittens(
     session: AsyncSession, kitten_filter: KittenFilter, params: Params
 ):
-    query = select(Kitten).join(Kitten.breed).options(selectinload(Kitten.breed))
+    query = (
+        select(Kitten).join(Kitten.breed).options(selectinload(Kitten.breed))
+    )
     query = kitten_filter.filter(query)
     query = kitten_filter.sort(query)
 

@@ -39,7 +39,9 @@ class Breed(Base):
     __tablename__ = 'breed'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(BREED_LENGTH), unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(
+        String(BREED_LENGTH), unique=True, nullable=False
+    )
 
     kittens: Mapped[list['Kitten']] = relationship(
         back_populates='breed', cascade='all, delete-orphan'
@@ -62,7 +64,9 @@ class Kitten(Base):
     )
     birth_date: Mapped[date] = mapped_column(Date(), nullable=False)
     description: Mapped[str] = mapped_column(Text(), nullable=False)
-    breed_id: Mapped[int] = mapped_column(ForeignKey('breed.id', ondelete='CASCADE'))
+    breed_id: Mapped[int] = mapped_column(
+        ForeignKey('breed.id', ondelete='CASCADE')
+    )
 
     breed: Mapped['Breed'] = relationship(back_populates='kittens')
 
@@ -84,11 +88,18 @@ class Kitten(Base):
     def age_in_months(cls):
         today = func.now()
         return (
-            (func.extract('year', today) - func.extract('year', cls.birth_date)) * 12
-            + (func.extract('month', today) - func.extract('month', cls.birth_date))
+            (
+                func.extract('year', today)
+                - func.extract('year', cls.birth_date)
+            ) * 12
+            + (
+                func.extract('month', today)
+                - func.extract('month', cls.birth_date)
+            )
             - case(
                 (
-                    func.extract('day', today) < func.extract('day', cls.birth_date),
+                    func.extract('day', today)
+                    < func.extract('day', cls.birth_date),
                     1,
                 ),
                 else_=0,

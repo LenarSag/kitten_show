@@ -7,13 +7,17 @@ from app.models.user import User
 from app.schemas.user_schema import UserCreate
 
 
-async def get_user_by_id(session: AsyncSession, id: uuid.UUID) -> Optional[User]:
+async def get_user_by_id(
+    session: AsyncSession, id: uuid.UUID
+) -> Optional[User]:
     query = select(User).filter_by(id=id)
     result = await session.execute(query)
     return result.scalar()
 
 
-async def get_user_by_username(session: AsyncSession, username: str) -> Optional[User]:
+async def get_user_by_username(
+    session: AsyncSession, username: str
+) -> Optional[User]:
     query = select(User).filter_by(username=username)
     result = await session.execute(query)
     return result.scalar()

@@ -22,7 +22,9 @@ from app.security.authentication import get_current_user
 breedrouter = APIRouter()
 
 
-async def get_breed_or_404(session: AsyncSession, breed_id: int) -> Optional[Breed]:
+async def get_breed_or_404(
+    session: AsyncSession, breed_id: int
+) -> Optional[Breed]:
     breed = await get_breed_by_id(session, breed_id)
     if breed is None:
         raise HTTPException(
@@ -54,7 +56,9 @@ async def get_breeds(
     return result
 
 
-@breedrouter.post('/', response_model=BreedOut, status_code=status.HTTP_201_CREATED)
+@breedrouter.post(
+    '/', response_model=BreedOut, status_code=status.HTTP_201_CREATED
+)
 async def create_breed(
     breed_data: BreedCreate,
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -63,7 +67,8 @@ async def create_breed(
     breed = await get_breed_by_name(session, breed_data.name)
     if breed:
         raise HTTPException(
-            detail='Breed already exists', status_code=status.HTTP_400_BAD_REQUEST
+            detail='Breed already exists',
+            status_code=status.HTTP_400_BAD_REQUEST
         )
 
     new_breed = await create_new_breed(session, breed_data)
