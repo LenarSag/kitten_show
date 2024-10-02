@@ -9,7 +9,6 @@ from sqlalchemy import (
     func,
     String,
     Text,
-    UniqueConstraint,
 )
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (
