@@ -1,7 +1,9 @@
 from datetime import date
 from enum import Enum as PyEnum
+from typing import Optional
 
 from sqlalchemy import (
+    ColumnElement,
     case,
     Date,
     Enum,
@@ -38,9 +40,7 @@ class Breed(Base):
     __tablename__ = 'breed'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(
-        String(BREED_LENGTH), unique=True, nullable=False
-    )
+    name: Mapped[str] = mapped_column(String(BREED_LENGTH), unique=True, nullable=False)
 
     kittens: Mapped[list['Kitten']] = relationship(
         back_populates='breed', cascade='all, delete-orphan'
@@ -63,14 +63,12 @@ class Kitten(Base):
     )
     birth_date: Mapped[date] = mapped_column(Date(), nullable=False)
     description: Mapped[str] = mapped_column(Text(), nullable=False)
-    breed_id: Mapped[int] = mapped_column(
-        ForeignKey('breed.id', ondelete='CASCADE')
-    )
+    breed_id: Mapped[int] = mapped_column(ForeignKey('breed.id', ondelete='CASCADE'))
 
     breed: Mapped['Breed'] = relationship(back_populates='kittens')
 
     @hybrid_property
-    def age_in_months(self) -> int:
+    def age_in_months(self) -> Optional[int]:
         if self.birth_date:
             today = date.today()
             months = (
@@ -84,21 +82,14 @@ class Kitten(Base):
         return None
 
     @age_in_months.expression
-    def age_in_months(cls):
+    def age_in_months(cls) -> ColumnElement[int]:
         today = func.now()
         return (
-            (
-                func.extract('year', today)
-                - func.extract('year', cls.birth_date)
-            ) * 12
-            + (
-                func.extract('month', today)
-                - func.extract('month', cls.birth_date)
-            )
+            (func.extract('year', today) - func.extract('year', cls.birth_date)) * 12
+            + (func.extract('month', today) - func.extract('month', cls.birth_date))
             - case(
                 (
-                    func.extract('day', today)
-                    < func.extract('day', cls.birth_date),
+                    func.extract('day', today) < func.extract('day', cls.birth_date),
                     1,
                 ),
                 else_=0,
@@ -109,7 +100,7 @@ class Kitten(Base):
     def validate_email(self, key, birth_date):
         today = date.today()
         if birth_date > today:
-            raise ValueError("Birth date can't be bigger than today")
+            raise ValueError("Birth date can't be later than today")
         return birth_date
 
     def __str__(self) -> str:
